@@ -1,0 +1,18 @@
+*, *::after, *:before {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.title {
+    margin-top: 2em;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: column;
+    height: 30vh;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+}
