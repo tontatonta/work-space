@@ -43,19 +43,30 @@ document.addEventListener('DOMContentLoaded', function() {
   
     let field = Array(20).fill().map(() => Array(10).fill(0));
   
-    function drawTetromino(context, pattern) {
-        context.fillStyle = '#ff0000'; // テトリミノの色
-        const cellSize = 20; // テトリミノのセルのサイズ
-        const startX = 3*cellSize; // テトリミノの描画開始X座標
-        const startY = 0; // テトリミノの描画開始Y座標
-  
-        for (let row = 0; row < pattern.length; row++) {
-            for (let col = 0; col < pattern[row].length; col++) {
-                if (pattern[row][col] === 1) {
-                    context.fillRect(startX + col * cellSize, startY + row * cellSize, cellSize, cellSize);
+    // positionはfield上
+    function getxy(tetorimino){
+        const twidth = 4
+        const theight = 4
+        position = []
+        for (let y = 0; y < twidth; y++) {
+            for (let x = 0; x < theight; x++) {
+                if (tetorimino[y][x] == 1){
+                    position.push([x+3, y])
                 }
             }
         }
+        return position
+    }
+    function drawTetromino(context, pattern) {
+      context.fillStyle = '#ff0000'; // テトリミノの色
+      const cellSize = 20; // テトリミノのセルのサイズ
+      let position = getxy(pattern)
+  
+      for (let i = 0; i < position.length; i++) {
+          let x = position[i][0]
+          let y = position[i][1]
+          context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
     }
   
     // canvasの呼び出し
@@ -76,20 +87,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // テトリミノを描画
     drawTetromino(context, tetrominoPattern);
   
-    //positionはfield上
-    const twidth = 4
-    const theight = 4
-    function getxy(tetorimino){
-        position = []
-        for (let y = 0; y < twidth; y++) {
-            for (let x = 0; x < theight; x++) {
-                if (tetorimino[y][x] == 1){
-                    position.push([x+3, y])
-                }
-            }
-        }
-        return position
+    // 下に落ちる
+    function under(field, position){
+      for(var i = 0; i < position.length; i++){
+          //下にブロックがあったら
+          if (judge(position[i][0], position[i][1]+1)){
+              return position
+          }
+      }
+      for (let j = 0; j < position.length; j++){
+          position[j][1] += 1
+      }
+      return position
     }
-    console.log(getxy(tetrominoPattern))
   
   });
