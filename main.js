@@ -73,14 +73,15 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   
-    // 衝突判定
-    // function judge(x, y, field){
-    //   return field[x][y] == 0
-    // }
+    // ブロック用の衝突判定
+    function judge(x, y, field) {
+      return field[y][x] != 0;
+    }
   
     // テトリミノを下に落とす
     function under(position){
   
+      // // 下にブロックがあるか判定
       // for(let i = 0; i < position.length; i++){
       //     //下にブロックがあったら
       //     if (judge(position[i][0], position[i][1]+1)){
@@ -88,6 +89,16 @@ document.addEventListener('DOMContentLoaded', function() {
       //     }
       // }
   
+      // 下にブロック、壁があるか判定
+      for(let i = 0; i < position.length; i++){
+        //下にブロックがあったら
+        if (position[i][1] === 19 || judge(position[i][0], position[i][1]+1, field)){
+            // console.log(position)
+            return position
+        }
+      }
+  
+      // 移動後のpositionを取得
       newPosition = []
   
       for (let j = 0; j < position.length; j++){
@@ -98,6 +109,28 @@ document.addEventListener('DOMContentLoaded', function() {
       return newPosition
     }
   
+    // テトリミノを右に移動
+    function right(position){
+  
+      // 右にブロックがあるか判定
+      // for(let i = 0; i < position.length; i++){
+      //     // 右にブロックがあったら
+      //     if (judge(position[i][0], position[i][1]+1)){
+      //         return position
+      //     }
+      // }
+  
+      // 移動後のpositionを取得
+      newPosition = []
+  
+      for (let j = 0; j < position.length; j++){
+          console.log(position[j][1])
+          newPosition.push([position[j][0], position[j][1]+1])
+      }
+  
+      return newPosition
+    }
+    
     // canvasの呼び出し
     const mainCanvas = document.getElementById('tetrisCanvas');
   
@@ -121,5 +154,12 @@ document.addEventListener('DOMContentLoaded', function() {
     drawTetromino(context, getxy(tetrominoPattern), red);
     drawTetromino(context, getxy(tetrominoPattern), gray);
     drawTetromino(context, under(getxy(tetrominoPattern)), red);
+    console.log(under([[3, 17]], red))
   
+    // 右
+  
+  
+    // 左
+  
+    // 回転
   });
