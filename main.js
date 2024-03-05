@@ -71,35 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // 
-  function control (e) {
-    
-    // eventMap = {
-    //   // 37 = 左矢印
-    //   37 : left(position),
-    //   // 38 = 上矢印(回転)
-    //   38 : rotate(position),
-    //   // 39 = 右矢印
-    //   39 : right(position),
-    //   // 40 = 下矢印
-    //   40 : under(position)
-    // }
-    
-    // return eventMap[e.KeyCode]
-
-    if(e.keyCode === 37) {
-      left()
-    } else if (e.keyCode === 38) {
-      rotate()
-    } else if (e.keyCode === 39) {
-      right()
-    } else if (e.keyCode === 40) {
-      under()
-    }
-  }
-
-  document.addEventListener('keydown', control)
-
   // 他ブロックとの衝突判定
   function judge(x, y, field) {
     return field[y][x] != 0;
@@ -187,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* x座標のはみ出している部分を見つける(あるかどうかも含めて)
-     見つけたら、はみ出ている部分を修正する */
+     もしあったら、はみ出ている部分を修正する */
   function revisePositionOfX(position) {
       let maxOutX = -1
       let minOutX = 1
@@ -221,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* y座標のはみ出している部分を見つける(あるかどうかも含めて)
-     見つけたら、はみ出ている部分を修正する*/ 
+     もしあったら、はみ出ている部分を修正する*/ 
   function revisePositionOfY(position) {
     let maxOutY = -1
     let minOutY = 1
@@ -274,20 +245,36 @@ document.addEventListener('DOMContentLoaded', function() {
   context.fillStyle = gray; // グレー色
   context.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
+  // キーイベントを各関数に割り当てる
+  function control (e) {
+
+    if(e.keyCode === 37) {
+      // console.log(left(position))
+      left(position)
+    } else if (e.keyCode === 38) {
+      rotate(position)
+    } else if (e.keyCode === 39) {
+      right(position)
+    } else if (e.keyCode === 40) {
+      under(position)
+    }
+  }
+  document.addEventListener('keydown', control)
+
   // 下に落とす動作
   let position;
   position = getxy(tetriminoPattern)
   console.log(position)
-  // drawTetrimino(context, position, red);
+  drawTetrimino(context, position, red);
   // drawTetrimino(context, position, gray);
   // drawTetrimino(context, under(position), red);
   // console.log(under([[3, 17]], red))
 
   console.log(tetriminoPattern)
-  rotatedTetrimino = rotate([[3, 16], [4, 16], [5, 16], [6, 16]])
+  // rotatedTetrimino = rotate([[3, 16], [4, 16], [5, 16], [6, 16]])
   // console.log(rotatedTetrimino)
-  console.log(revisePositionOfY(rotatedTetrimino))
-  drawTetrimino(context, revisePositionOfY(rotatedTetrimino), red)
+  // console.log(revisePositionOfY(rotatedTetrimino))
+  // drawTetrimino(context, revisePositionOfY(rotatedTetrimino), red)
   // console.log(after)
 
 });
