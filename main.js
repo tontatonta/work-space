@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
     for(let i = 0; i < position.length; i++){
       //下にブロックがあったら
       if (position[i][1] === 19 || judge(position[i][0], position[i][1]+1, field)){
-          // console.log(position)
           return position
       }
     }
