@@ -336,4 +336,38 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   nextTetrimino();
 
+
+
+  const width = 10; //fieldの横の長さ
+  const height = 20; // f
+  //横一列揃ったら一列消える
+  function disapper(field, point){
+    for (let i = 0; i < field.length(); i++){
+        if (field[i].indexOf(0) == -1){
+            field[i].fill(0)
+            //scoreを保存する
+            score(point)
+            //消えた分下に下がる
+            down(i, field)
+        }
+    }
+  }
+
+  //点数を保存
+  point = 0
+  function score(point){
+      point += 10
+      return point
+  }
+
+  //上の段のものが一つ下に落ちる
+  function down(i,field){
+    for (let j = i; j > 0; j--){
+        for (let k = 0; k < field[1].length(); k++){
+            field[i][k] = field[i-1][k]
+        }
+    }
+    field[0].fill(0)
+  }
+
 });
