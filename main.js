@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
     ];
 
-    return tetriminos[num]; // ここが改善点です
+    return tetriminos[num];
   }
 
   // 固定されたテトリミノの配置を記憶(10*20の2次元行列)
