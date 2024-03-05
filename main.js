@@ -76,14 +76,24 @@ document.addEventListener('DOMContentLoaded', function() {
     return field[y][x] != 0;
   }
 
+  function underjudge(field, position){
+    for(let i = 0; i < position.length; i++){
+        //下にブロックがあったら
+        if (position[i][1] === 19 || judge(position[i][0], position[i][1]+1, field)){
+            return true
+        }
+    }
+    return false
+  }
+
   // テトリミノを下に落とす
-  function under(position){
+  function under(field, position){
 
     // 下にブロック、壁があるか判定
     for(let i = 0; i < position.length; i++){
       //下にブロックがあったら
-      if (position[i][1] === 19 || judge(position[i][0], position[i][1]+1, field)){
-          return position
+      if (underjudge(field,position)){
+          return updateField(field, position)
       }
     }
 
@@ -224,18 +234,28 @@ document.addEventListener('DOMContentLoaded', function() {
     return newPosition
   }
 
+  // 
+  function updateField(field, position){
+    for (let i = 0; i < position.length; i++){
+        let x = position[i][0]
+        let y = position[i][1]
+        field[y][x] = 1
+    }
+    return field
+  }
+
   // キーイベントを各関数に割り当てる
   function control (e) {
 
     if(e.keyCode === 37) {
-      // console.log(left(position))
+      console.log(left(position))
       left(position)
     } else if (e.keyCode === 38) {
       rotate(position)
     } else if (e.keyCode === 39) {
       right(position)
     } else if (e.keyCode === 40) {
-      under(position)
+      under(field, position)
     }
   }
   document.addEventListener('keydown', control)
@@ -264,25 +284,24 @@ document.addEventListener('DOMContentLoaded', function() {
   position = getxy(tetriminoPattern);
   console.log(position);
   drawTetrimino(context, position, red);
+  // drawTetrimino(context, position, gray);
 
   //自動落下
-  // let hhh = true;
-  
-  // const intervalId = setInterval(() => {
-  //   if (underjudge(field,position)){
-  //     clearInterval(intervalId);
-  //     return block(field,position)
-  //   }
-  //     if (hhh) {
-  //         drawTetrimino(context, position, gray);
-  //     } else {
-  //         position = under(field,position);
-  //         drawTetrimino(context, position, red);
-  //     }
-  //     hhh = !hhh;
-  // }, 250);
+  let hhh = true;
 
-
+  const intervalId = setInterval(() => {
+    if (underjudge(field,position)){
+      clearInterval(intervalId);
+      return updateField(field,position)
+    }
+      if (hhh) {
+          drawTetrimino(context, position, gray);
+      } else {
+          position = under(field,position);
+          drawTetrimino(context, position, red);
+      }
+      hhh = !hhh;
+  }, 250);
 
   // 次に落ちてくるテトリミノを描画する関数
   function nextTetrimino() {
@@ -314,8 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
     miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
     // miniCanvasに描画
     drawTetrimino(miniContext, nextPosition, red);
-
   }
-
   nextTetrimino();
+
 });
