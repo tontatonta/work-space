@@ -71,6 +71,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // 
+  function control (e) {
+    
+    // eventMap = {
+    //   // 37 = 左矢印
+    //   37 : left(position),
+    //   // 38 = 上矢印(回転)
+    //   38 : rotate(position),
+    //   // 39 = 右矢印
+    //   39 : right(position),
+    //   // 40 = 下矢印
+    //   40 : under(position)
+    // }
+    
+    // return eventMap[e.KeyCode]
+
+    if(e.keyCode === 37) {
+      left()
+    } else if (e.keyCode === 38) {
+      rotate()
+    } else if (e.keyCode === 39) {
+      right()
+    } else if (e.keyCode === 40) {
+      under()
+    }
+  }
+
+  document.addEventListener('keydown', control)
+
   // 他ブロックとの衝突判定
   function judge(x, y, field) {
     return field[y][x] != 0;
@@ -91,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let newPosition = []
 
     for (let j = 0; j < position.length; j++){
-        console.log(position[j][1])
+        // console.log(position[j][1])
         newPosition.push([position[j][0], position[j][1]+1])
     }
     position = newPosition
@@ -99,30 +128,133 @@ document.addEventListener('DOMContentLoaded', function() {
     return position
   }
 
-  // テトリミノを右に移動
+  // 右に移動
   function right(position){
-
-    // 右にブロックがあるか判定
-
-    // 移動後のpositionを取得
-    let newPosition = []
-
-    for (let j = 0; j < position.length; j++){
-        console.log(position[j][1])
-        newPosition.push([position[j][0], position[j][1]+1])
+    for (let i = 0; i < position.length; i++){
+        let x = position[i][0]
+        let y = position[i][1]
+        if (x == 9 || judge(x+1, y, field)){
+            return position
+        }
     }
-
-    position = newPosition
-
-    return position
+    newPosition = []
+    for (let j = 0; j < position.length; j++){
+        let x = position[j][0]
+        let y = position[j][1]
+        newPosition.push([x+1, y])
+    }
+    return newPosition
   }
 
-  // 左
+  //左に移動
+  function left(position){  
+    for (let i = 0; i < position.length; i++){
+        let x = position[i][0]
+        let y = position[i][1]
+        if (x == 0 || judge(x-1, y, field)){
+            return position
+        }
+    }
+    newPosition = []
+    for (let j = 0; j < position.length; j++){
+        let x = position[j][0]
+        let y = position[j][1]
+        newPosition.push([x-1, y])
+    }
+
+    return newPosition
+  }
 
   // 回転
+  function rotate(position){
+
+    newPosition = []
+    let centerx = 0
+    let centery = 0
+    for (let i = 0; i < position.length; i++){
+        centerx += position[i][0]
+        centery += position[i][1]
+    }
+
+    for (let j = 0; j < position.length; j++){
+        let x = position[j][0]-(centerx/4)
+        let y = position[j][1]-(centery/4)
+        let X = Math.floor(x*Math.cos(Math.PI/2) - y*Math.sin(Math.PI/2) + (centerx/4))
+        let Y = Math.floor(y*Math.cos(Math.PI/2) + x*Math.sin(Math.PI/2) + (centery/4))
+        newPosition.push([X,Y])
+    }
+    return newPosition
+  }
+
+  /* x座標のはみ出している部分を見つける(あるかどうかも含めて)
+     見つけたら、はみ出ている部分を修正する */
+  function revisePositionOfX(position) {
+      let maxOutX = -1
+      let minOutX = 1
+      for (let i = 0; i < position.length; i++) {
+          // もし＋にはみ出ているx座標があったら、maxを計算
+          if (position[i][0] > 9) {
+            maxOutX = Math.max(maxOutX, position[i][0]);
+          }
+          // もし-にはみ出ているx座標があったら、minを計算
+          if (position[i][0] < 0) {
+            minOutX = Math.min(minOutX, position[i][0]);
+          }
+      }
+      
+      let newPosition = []
+      if (maxOutX != -1) {
+        for(let i = 0; i < position.length; i++) {
+          newPosition.push([position[i][0] - (maxOutX-9), position[i][1]]);
+        }
+      }
+      else if (minOutX != 1) {
+        for(let i = 0; i < position.length; i++) {
+          newPosition.push([position[i][0] - minOutX, position[i][1]]);
+        }
+      }
+      else {
+        return position
+      }
+
+      return newPosition
+  }
+
+  /* y座標のはみ出している部分を見つける(あるかどうかも含めて)
+     見つけたら、はみ出ている部分を修正する*/ 
+  function revisePositionOfY(position) {
+    let maxOutY = -1
+    let minOutY = 1
+    for (let i = 0; i < position.length; i++) {
+        // もし＋にはみ出ているy座標があったら、maxを計算
+        if (position[i][1] > 19) {
+          maxOutY = Math.max(maxOutY, position[i][1]);
+        }
+        // もし-にはみ出ているy座標があったら、minを計算
+        if (position[i][1] < 0) {
+          minOutY = Math.min(minOutY, position[i][1]);
+        }
+    }
+    
+    let newPosition = []
+    if (maxOutY != -1) {
+      for(let i = 0; i < position.length; i++) {
+        newPosition.push([position[i][0], position[i][1] - (maxOutY-19)]);
+      }
+    }
+    else if (minOutY != 1) {
+      for(let i = 0; i < position.length; i++) {
+        newPosition.push([position[i][0], position[i][1] - minOutY]);
+      }
+    }
+    else {
+      return position
+    }
+
+    return newPosition
+  }
 
 
-  
   // canvasの呼び出し
   const mainCanvas = document.getElementById('tetrisCanvas');
 
@@ -146,9 +278,16 @@ document.addEventListener('DOMContentLoaded', function() {
   let position;
   position = getxy(tetriminoPattern)
   console.log(position)
-  drawTetrimino(context, position, red);
-  drawTetrimino(context, position, gray);
-  drawTetrimino(context, under(position), red);
-  console.log(under([[3, 17]], red))
+  // drawTetrimino(context, position, red);
+  // drawTetrimino(context, position, gray);
+  // drawTetrimino(context, under(position), red);
+  // console.log(under([[3, 17]], red))
+
+  console.log(tetriminoPattern)
+  rotatedTetrimino = rotate([[3, 16], [4, 16], [5, 16], [6, 16]])
+  // console.log(rotatedTetrimino)
+  console.log(revisePositionOfY(rotatedTetrimino))
+  drawTetrimino(context, revisePositionOfY(rotatedTetrimino), red)
+  // console.log(after)
 
 });
