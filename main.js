@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 固定されたテトリミノの配置を記憶(10*20の2次元行列)
   let field = Array(20).fill().map(() => Array(10).fill(0));
 
-  // 落ちてくるテトリミノの初期座標を取得
+  // 落ちてくるテトリミノの初期座標(1の座標)を取得
   function getxy(tetrimino){
       const twidth = 4
       const theight = 4
@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 下に落とす動作
   let position;
   position = getxy(tetriminoPattern)
+  console.log(position)
   drawTetrimino(context, position, red);
   drawTetrimino(context, position, gray);
   drawTetrimino(context, under(position), red);
