@@ -266,7 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
   drawTetrimino(context, position, red);
 
   //自動落下
-  
   // let hhh = true;
   
   // const intervalId = setInterval(() => {
@@ -284,33 +283,39 @@ document.addEventListener('DOMContentLoaded', function() {
   // }, 250);
 
 
-  // 次に落ちてくるテトリミノの、ミニグリッドに描画用の座標(1の座標)を取得
-  function miniGetxy(tetrimino){
-    const twidth = 4
-    const theight = 4
-    position = []
-    for (let y = 0; y < twidth; y++) {
-        for (let x = 0; x < theight; x++) {
-            if (tetrimino[y][x] == 1){
-                position.push([x, y+1])
-            }
-        }
+
+  // 次に落ちてくるテトリミノを描画する関数
+  function nextTetrimino() {
+    // 次に落ちてくるテトリミノの、ミニグリッドに描画用の座標(1の座標)を取得する関数
+    function miniGetxy(tetrimino){
+      const twidth = 4
+      const theight = 4
+      position = []
+      for (let y = 0; y < twidth; y++) {
+          for (let x = 0; x < theight; x++) {
+              if (tetrimino[y][x] == 1){
+                  position.push([x, y+1])
+              }
+          }
+      }
+      return position
     }
-    return position
+    // miniCanvasの呼び出し
+    const miniCanvas = document.getElementById('miniCanvas');
+    const miniContext = miniCanvas.getContext('2d');
+    // 次のテトリミノの呼び出し
+    let nextRandomNumber = Math.floor(Math.random() * 5);
+    let nextTetriminoPattern = tetrimino(nextRandomNumber);
+    // テトリミノのminiCanvas内での位置を取得
+    let nextPosition;
+    nextPosition = miniGetxy(nextTetriminoPattern);
+    // グレーの背景を塗りつぶす
+    miniContext.fillStyle = gray; // グレー色
+    miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
+    // miniCanvasに描画
+    drawTetrimino(miniContext, nextPosition, red);
+
   }
 
-  // miniCanvasの呼び出し
-  const miniCanvas = document.getElementById('miniCanvas');
-  const miniContext = miniCanvas.getContext('2d');
-  // 次のテトリミノの呼び出し
-  let nextRandomNumber = Math.floor(Math.random() * 5);
-  let nextTetriminoPattern = tetrimino(nextRandomNumber);
-  // テトリミノのminiCanvas内での位置を取得
-  let nextPosition;
-  nextPosition = miniGetxy(nextTetriminoPattern);
-  // グレーの背景を塗りつぶす
-  miniContext.fillStyle = gray; // グレー色
-  miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
-  // miniCanvasに描画
-  drawTetrimino(miniContext, nextPosition, red);
+  nextTetrimino();
 });
