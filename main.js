@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 固定されたテトリミノの配置を記憶(10*20の2次元行列)
   let field = Array(20).fill().map(() => Array(10).fill(0));
 
-  // 落ちてくるテトリミノの座標を取得
+  // 落ちてくるテトリミノの初期座標を取得
   function getxy(tetrimino){
       const twidth = 4
       const theight = 4
