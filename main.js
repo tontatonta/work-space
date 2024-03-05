@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return tetriminos[num]; // ここが改善点です
   }
 
-  // 固定されたテトリミノの配置を記憶
+  // 固定されたテトリミノの配置を記憶(10*20の2次元行列)
   let field = Array(20).fill().map(() => Array(10).fill(0));
 
   // 落ちてくるテトリミノの座標を取得
@@ -63,8 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function drawTetrimino(context, position, color) {
     context.fillStyle = color; // テトリミノの色
     const cellSize = 20; // テトリミノのセルのサイズ
-    // let position = getxy(pattern)
-    // console.log(position)
 
     for (let i = 0; i < position.length; i++) {
         let x = position[i][0]
