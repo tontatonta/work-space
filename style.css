@@ -45,7 +45,7 @@ body {
     height: 80px;
     display: flex;
     flex-wrap: wrap;
-    background-color: lightgray;
+    /* background-color: lightgray; */
 }
 
 .mini-grid div {

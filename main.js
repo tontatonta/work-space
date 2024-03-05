@@ -94,9 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // console.log(position[j][1])
         newPosition.push([position[j][0], position[j][1]+1])
     }
-    position = newPosition
 
-    return position
+    return newPosition
   }
 
   // 右に移動
@@ -225,8 +224,23 @@ document.addEventListener('DOMContentLoaded', function() {
     return newPosition
   }
 
+  // キーイベントを各関数に割り当てる
+  function control (e) {
 
-  // canvasの呼び出し
+    if(e.keyCode === 37) {
+      // console.log(left(position))
+      left(position)
+    } else if (e.keyCode === 38) {
+      rotate(position)
+    } else if (e.keyCode === 39) {
+      right(position)
+    } else if (e.keyCode === 40) {
+      under(position)
+    }
+  }
+  document.addEventListener('keydown', control)
+
+  // mainCanvasの呼び出し
   const mainCanvas = document.getElementById('tetrisCanvas');
 
   // ↓canvasで2次元描画をするために必要らしい
@@ -245,36 +259,58 @@ document.addEventListener('DOMContentLoaded', function() {
   context.fillStyle = gray; // グレー色
   context.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
-  // キーイベントを各関数に割り当てる
-  function control (e) {
-
-    if(e.keyCode === 37) {
-      // console.log(left(position))
-      left(position)
-    } else if (e.keyCode === 38) {
-      rotate(position)
-    } else if (e.keyCode === 39) {
-      right(position)
-    } else if (e.keyCode === 40) {
-      under(position)
-    }
-  }
-  document.addEventListener('keydown', control)
-
-  // 下に落とす動作
+  // テトリミノの初期位置を取得
   let position;
-  position = getxy(tetriminoPattern)
-  console.log(position)
+  position = getxy(tetriminoPattern);
+  console.log(position);
   drawTetrimino(context, position, red);
-  // drawTetrimino(context, position, gray);
-  // drawTetrimino(context, under(position), red);
-  // console.log(under([[3, 17]], red))
 
-  console.log(tetriminoPattern)
-  // rotatedTetrimino = rotate([[3, 16], [4, 16], [5, 16], [6, 16]])
-  // console.log(rotatedTetrimino)
-  // console.log(revisePositionOfY(rotatedTetrimino))
-  // drawTetrimino(context, revisePositionOfY(rotatedTetrimino), red)
-  // console.log(after)
+  //自動落下
+  
+  // let hhh = true;
+  
+  // const intervalId = setInterval(() => {
+  //   if (underjudge(field,position)){
+  //     clearInterval(intervalId);
+  //     return block(field,position)
+  //   }
+  //     if (hhh) {
+  //         drawTetrimino(context, position, gray);
+  //     } else {
+  //         position = under(field,position);
+  //         drawTetrimino(context, position, red);
+  //     }
+  //     hhh = !hhh;
+  // }, 250);
 
+
+  // 次に落ちてくるテトリミノの、ミニグリッドに描画用の座標(1の座標)を取得
+  function miniGetxy(tetrimino){
+    const twidth = 4
+    const theight = 4
+    position = []
+    for (let y = 0; y < twidth; y++) {
+        for (let x = 0; x < theight; x++) {
+            if (tetrimino[y][x] == 1){
+                position.push([x, y+1])
+            }
+        }
+    }
+    return position
+  }
+
+  // miniCanvasの呼び出し
+  const miniCanvas = document.getElementById('miniCanvas');
+  const miniContext = miniCanvas.getContext('2d');
+  // 次のテトリミノの呼び出し
+  let nextRandomNumber = Math.floor(Math.random() * 5);
+  let nextTetriminoPattern = tetrimino(nextRandomNumber);
+  // テトリミノのminiCanvas内での位置を取得
+  let nextPosition;
+  nextPosition = miniGetxy(nextTetriminoPattern);
+  // グレーの背景を塗りつぶす
+  miniContext.fillStyle = gray; // グレー色
+  miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
+  // miniCanvasに描画
+  drawTetrimino(miniContext, nextPosition, red);
 });
