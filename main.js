@@ -337,11 +337,19 @@ document.addEventListener('DOMContentLoaded', function() {
   nextTetrimino();
 
 
+  /* 3/6(水)は各々できる時間にできそうなことをやる
+     「（現状の）やることリスト
+      ・以下のdisappier、score、down関数を考える
+      ・fieldを描画する関数
+      ・スコア計算  etc.....
+      
+      3/7（木）は AM 10:00- から集まって作業
+  */
 
   const width = 10; //fieldの横の長さ
   const height = 20; // f
   //横一列揃ったら一列消える
-  function disapper(field, point){
+  function disappier(field, point){
     for (let i = 0; i < field.length(); i++){
         if (field[i].indexOf(0) == -1){
             field[i].fill(0)
