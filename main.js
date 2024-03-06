@@ -41,8 +41,56 @@ document.addEventListener('DOMContentLoaded', function() {
     return tetriminos[num];
   }
 
-  // 固定されたテトリミノの配置を記憶(10*20の2次元行列)
+  let copyField = [
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0]
+  ]
+  // 固定されたテトリミノの配置をfieldに記憶(10*20の2次元行列)
   let field = Array(20).fill().map(() => Array(10).fill(0));
+
+  const width = 10; //fieldの横の長さ
+  const height = 20; // 
+
+  //横一列揃ったら一列消える
+  function disappier(field, point){
+    for (let i = 0; i < field.length(); i++){
+        if (field[i].indexOf(0) == -1){
+            field[i].fill(0)
+            //scoreを保存する
+            score(point)
+            //消えた分下に下がる
+            down(i, field)
+        }
+    }
+  }
+
+  //上の段のものが一つ下に落ちる
+  function down(i,field){
+    for (let j = i; j > 0; j--){
+        for (let k = 0; k < field[1].length(); k++){
+            field[i][k] = field[i-1][k]
+        }
+    }
+    field[0].fill(0)
+  }
 
   // 落ちてくるテトリミノの初期座標(1の座標)を取得
   function getxy(tetrimino){
@@ -76,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return field[y][x] != 0;
   }
 
+  // 下にブロックがあるか判定（あればtrue）
   function underjudge(field, position){
     for(let i = 0; i < position.length; i++){
         //下にブロックがあったら
@@ -86,6 +135,22 @@ document.addEventListener('DOMContentLoaded', function() {
     return false
   }
 
+  // 下に落ちる
+  // function under(field, position){
+  //   for(let i = 0; i < position.length; i++){
+  //       //下にブロックがあったら
+  //       if (position[i][1] === 19 || judge(position[i][0], position[i][1]+1, field)){
+  //           return;// block(field, position)
+  //       }
+  //   }
+  //   //position更新
+  //   newPosition = []
+  //   for (let j = 0; j < position.length; j++){
+  //       newPosition.push([position[j][0],position[j][1]+1])
+  //   }
+  //   return newPosition
+  // }
+  
   // テトリミノを下に落とす
   function under(field, position){
 
@@ -166,9 +231,11 @@ document.addEventListener('DOMContentLoaded', function() {
     return newPosition
   }
 
-  /* x座標のはみ出している部分を見つける(あるかどうかも含めて)
-     もしあったら、はみ出ている部分を修正する */
-  function revisePositionOfX(position) {
+  /* テトリミノのx, y座標のはみ出している部分を見つける(あるかどうかも含めて)。
+     もしあったら、はみ出ている部分を修正する　*/
+  function revisePositionIfOverflow(position) {
+    /* x座標のはみ出している部分を見つける(あるかどうかも含めて)。もしあったら、はみ出ている部分を修正する */
+     function revisePositionOfX(position) {
       let maxOutX = -1
       let minOutX = 1
       for (let i = 0; i < position.length; i++) {
@@ -181,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
             minOutX = Math.min(minOutX, position[i][0]);
           }
       }
-      
+      // はみ出している部分があるかどうか確かめ、あれば修正(なければそのまま元のpositionを返す)
       let newPosition = []
       if (maxOutX != -1) {
         for(let i = 0; i < position.length; i++) {
@@ -192,49 +259,48 @@ document.addEventListener('DOMContentLoaded', function() {
         for(let i = 0; i < position.length; i++) {
           newPosition.push([position[i][0] - minOutX, position[i][1]]);
         }
-      }
-      else {
+      } else {
         return position
       }
-
       return newPosition
+    }
+
+    /* y座標のはみ出している部分を見つける(あるかどうかも含めて)。もしあったら、はみ出ている部分を修正する*/ 
+    function revisePositionOfY(position) {
+      let maxOutY = -1
+      let minOutY = 1
+      for (let i = 0; i < position.length; i++) {
+          // もし＋にはみ出ているy座標があったら、maxを計算
+          if (position[i][1] > 19) {
+            maxOutY = Math.max(maxOutY, position[i][1]);
+          }
+          // もし-にはみ出ているy座標があったら、minを計算
+          if (position[i][1] < 0) {
+            minOutY = Math.min(minOutY, position[i][1]);
+          }
+      }
+      // はみ出している部分があるかどうか確かめ、あれば修正(なければそのまま元のpositionを返す)
+      let newPosition = []
+      if (maxOutY != -1) {
+        for(let i = 0; i < position.length; i++) {
+          newPosition.push([position[i][0], position[i][1] - (maxOutY-19)]);
+        }
+      }
+      else if (minOutY != 1) {
+        for(let i = 0; i < position.length; i++) {
+          newPosition.push([position[i][0], position[i][1] - minOutY]);
+        }
+      } else {
+        return position
+      }
+      return newPosition
+    }
+
+    let revesedPosition = revisePositionOfY(revisePositionOfX(position));
+    return revesedPosition
   }
 
-  /* y座標のはみ出している部分を見つける(あるかどうかも含めて)
-     もしあったら、はみ出ている部分を修正する*/ 
-  function revisePositionOfY(position) {
-    let maxOutY = -1
-    let minOutY = 1
-    for (let i = 0; i < position.length; i++) {
-        // もし＋にはみ出ているy座標があったら、maxを計算
-        if (position[i][1] > 19) {
-          maxOutY = Math.max(maxOutY, position[i][1]);
-        }
-        // もし-にはみ出ているy座標があったら、minを計算
-        if (position[i][1] < 0) {
-          minOutY = Math.min(minOutY, position[i][1]);
-        }
-    }
-    
-    let newPosition = []
-    if (maxOutY != -1) {
-      for(let i = 0; i < position.length; i++) {
-        newPosition.push([position[i][0], position[i][1] - (maxOutY-19)]);
-      }
-    }
-    else if (minOutY != 1) {
-      for(let i = 0; i < position.length; i++) {
-        newPosition.push([position[i][0], position[i][1] - minOutY]);
-      }
-    }
-    else {
-      return position
-    }
-
-    return newPosition
-  }
-
-  // 
+  // fieldに反映させる（固定）
   function updateField(field, position){
     for (let i = 0; i < position.length; i++){
         let x = position[i][0]
@@ -243,6 +309,76 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     return field
   }
+
+  // 点数を保存
+  let point = 0
+  function score(point){
+      point += 10
+      return point
+  }
+
+  /* ゲームオーバーかどうか判定する関数(ゲームオーバーはTrue)
+  getxyで落ちてくるテトリミノの最初の座標を取得するがその取得した座標にすでにブロックがある（1が存在する）場合ゲームオーバー */
+  // let judgedPosition = getxy(tetriminoPattern)
+  function gameover(position, field){
+      for (let i = 0; i < position.length; i++){
+          let x = position[i][0]
+          let y = position[i][1]
+          if (field[y][x] == 1){
+              return false
+          }
+      }
+      return true
+  }
+
+  // 次に落ちてくるテトリミノを描画する関数
+  function nextTetrimino() {
+    // 次に落ちてくるテトリミノの、ミニグリッドに描画用の座標(1の座標)を取得する関数
+    function miniGetxy(tetrimino){
+      const twidth = 4
+      const theight = 4
+      let position = []
+      for (let y = 0; y < twidth; y++) {
+          for (let x = 0; x < theight; x++) {
+              if (tetrimino[y][x] == 1){
+                  position.push([x, y+1])
+              }
+          }
+      }
+      return position
+    }
+    // miniCanvasの呼び出し
+    const miniCanvas = document.getElementById('miniCanvas');
+    const miniContext = miniCanvas.getContext('2d');
+    // 次のテトリミノの呼び出し
+    let nextRandomNumber = Math.floor(Math.random() * 5);
+    let nextTetriminoPattern = tetrimino(nextRandomNumber);
+    // テトリミノのminiCanvas内での位置を取得
+    let nextPosition;
+    nextPosition = miniGetxy(nextTetriminoPattern);
+    // グレーの背景を塗りつぶす
+    miniContext.fillStyle = '#CCCCCC'; // グレー色
+    miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
+    // miniCanvasに描画
+    drawTetrimino(miniContext, nextPosition, '#ff0000');
+  }
+  nextTetrimino();
+
+  //自動落下
+  let hhh = true;
+  const intervalId = setInterval(() => {
+    if (underjudge(field,position)){
+      clearInterval(intervalId);
+      return updateField(field,position)
+    }
+      if (hhh) {
+          drawTetrimino(context, position, gray);
+      } else {
+          position = under(field,position);
+          drawTetrimino(context, position, red);
+      }
+      hhh = !hhh;
+  }, 250);
 
   // キーイベントを各関数に割り当てる
   function control (e) {
@@ -286,56 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
   drawTetrimino(context, position, red);
   // drawTetrimino(context, position, gray);
 
-  //自動落下
-  let hhh = true;
-
-  const intervalId = setInterval(() => {
-    if (underjudge(field,position)){
-      clearInterval(intervalId);
-      return updateField(field,position)
-    }
-      if (hhh) {
-          drawTetrimino(context, position, gray);
-      } else {
-          position = under(field,position);
-          drawTetrimino(context, position, red);
-      }
-      hhh = !hhh;
-  }, 250);
-
-  // 次に落ちてくるテトリミノを描画する関数
-  function nextTetrimino() {
-    // 次に落ちてくるテトリミノの、ミニグリッドに描画用の座標(1の座標)を取得する関数
-    function miniGetxy(tetrimino){
-      const twidth = 4
-      const theight = 4
-      position = []
-      for (let y = 0; y < twidth; y++) {
-          for (let x = 0; x < theight; x++) {
-              if (tetrimino[y][x] == 1){
-                  position.push([x, y+1])
-              }
-          }
-      }
-      return position
-    }
-    // miniCanvasの呼び出し
-    const miniCanvas = document.getElementById('miniCanvas');
-    const miniContext = miniCanvas.getContext('2d');
-    // 次のテトリミノの呼び出し
-    let nextRandomNumber = Math.floor(Math.random() * 5);
-    let nextTetriminoPattern = tetrimino(nextRandomNumber);
-    // テトリミノのminiCanvas内での位置を取得
-    let nextPosition;
-    nextPosition = miniGetxy(nextTetriminoPattern);
-    // グレーの背景を塗りつぶす
-    miniContext.fillStyle = gray; // グレー色
-    miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
-    // miniCanvasに描画
-    drawTetrimino(miniContext, nextPosition, red);
-  }
-  nextTetrimino();
-
 
   /* 3/6(水)は各々できる時間にできそうなことをやる
      「（現状の）やることリスト
@@ -345,37 +431,5 @@ document.addEventListener('DOMContentLoaded', function() {
       
       3/7（木）は AM 10:00- から集まって作業
   */
-
-  const width = 10; //fieldの横の長さ
-  const height = 20; // f
-  //横一列揃ったら一列消える
-  function disappier(field, point){
-    for (let i = 0; i < field.length(); i++){
-        if (field[i].indexOf(0) == -1){
-            field[i].fill(0)
-            //scoreを保存する
-            score(point)
-            //消えた分下に下がる
-            down(i, field)
-        }
-    }
-  }
-
-  //点数を保存
-  point = 0
-  function score(point){
-      point += 10
-      return point
-  }
-
-  //上の段のものが一つ下に落ちる
-  function down(i,field){
-    for (let j = i; j > 0; j--){
-        for (let k = 0; k < field[1].length(); k++){
-            field[i][k] = field[i-1][k]
-        }
-    }
-    field[0].fill(0)
-  }
 
 });
