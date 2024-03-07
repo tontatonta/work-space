@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
       return field[y][x] != 0
   }
   //positionはfield上
-  const twidht=4
-  const theight=4
+  const twidht = 4
+  const theight = 4
   function getxy(tetorimino){
       position = []
       for (let y = 0; y < twidht; y++){
@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       return false
   }
-
 
   //下に落ちる
   function under(field, position){
@@ -175,13 +174,11 @@ document.addEventListener('DOMContentLoaded', function() {
           let y = position[j][1]
           newPosition.push([x-1, y])
       }
-  
       return newPosition
   }
 
   //回転
   function rotate(position){
-
       newPosition = []
       let centerx = 0
       let centery = 0
@@ -282,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   function copyfielddrow(copyField, ramdomNumber){
       const red = '#ff0000'
-      const grey = '#CCCCCC' 
+      const grey = '#CCCCCC'
 
       for (let y = 0; y < copyField.length; y++){
           for (let x = 0; x < copyField[0].length; x++){
