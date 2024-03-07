@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
   //HTMLのスコア表示のため↓
   const scoreDisplay = document.querySelector('#score')
@@ -204,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   /* テトリミノのx, y座標のはみ出している部分を見つける(あるかどうかも含めて)。
      もしあったら、はみ出ている部分を修正する　*/
-     function revisePositionIfOverflow(position) {
+    function revisePositionIfOverflow(position) {
       /* x座標のはみ出している部分を見つける(あるかどうかも含めて)。もしあったら、はみ出ている部分を修正する */
        function revisePositionOfX(position) {
         let maxOutX = -1 
@@ -272,22 +271,23 @@ document.addEventListener('DOMContentLoaded', function() {
   //消して描いて消して描いてを考える
   //最初の描く部分は考えていない
   function updateCopyField(copyField, newposition, randomNumber){
-      //newpositionをcopyFieldに反映させる
-      for (let i = 0; i < newposition.length; i++){
-          let x = newposition[i][0]
-          let y = newposition[i][1]
-          copyField[y][x] = 2 //テトリミノの種類によって数字を変えれば色も変えれるかも
-      }
+    //newpositionをcopyFieldに反映させる
+    console.log(copyField)
+    console.log(copyField)
+    for (let i = 0; i < newposition.length; i++){
+        let x = newposition[i][0]
+        let y = newposition[i][1]
+        copyField[y][x] = 2 + randomNumber//テトリミノの種類によって数字を変えれば色も変えれるかも
+    }
   }
-
   function copyfielddrow(copyField, ramdomNumber){
       const red = '#ff0000'
       const grey = '#CCCCCC' 
 
       for (let y = 0; y < copyField.length; y++){
           for (let x = 0; x < copyField[0].length; x++){
-              if (copyField[y][x] == 2){//2以上にするとテトリミノの種類に応じて色変更ができるかも．hashmapを用いれば
-                  draw(x, y, color[randomNumber])
+              if (copyField[y][x] >= 2){//2以上にするとテトリミノの種類に応じて色変更ができるかも．hashmapを用いれば
+                  draw(x, y, color[copyField[y][x]-2])
               }
               else if(copyField[y][x] <= 1){
                   copyField[y][x] = 0
@@ -304,15 +304,12 @@ document.addEventListener('DOMContentLoaded', function() {
       context.fillRect(x*cellSize, y*cellSize, cellSize, cellSize)
   }
 
-//描く関数をまとめてみる
+  //描く関数をまとめてみる
   function alldrow(copyField, position,randomNumber){
-      //console.log('beforposition: ', position)
-      updateCopyField(copyField, position)
-      //console.log('aftercopyfield: ', copyField)
-      copyfielddrow(copyField, randomNumber)
-      //block(field, copyfield, position)
+    updateCopyField(copyField, position, randomNumber)
+    copyfielddrow(copyField, randomNumber)
 
-  }
+}
   //最初の地点
 
   // mainCanvasの呼び出し
@@ -324,51 +321,57 @@ document.addEventListener('DOMContentLoaded', function() {
   context.fillStyle = gray; // グレー色
   context.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
-
+  /* 0~4のランダムな整数を取得して、
+      ランダムなテトリミノを１つ取得 */
   // miniCanvasの呼び出し
   const miniCanvas = document.getElementById('miniCanvas');
   const miniContext = miniCanvas.getContext('2d');
-
+  
   /* 0~4のランダムな整数を取得して、
-    ランダムなテトリミノを１つ取得 */
+      ランダムなテトリミノを１つ取得 */
   let randomNumber = Math.floor(Math.random() * 5);
   let tetriminoPattern = tetrimino(randomNumber);
+  //  console.log('randomtetorimino', randomNumber)
+  function miniGetxy(tetrimino){
+    const twidth = 4
+    const theight = 4
+    let position = []
+    for (let y = 0; y < twidth; y++) {
+        for (let x = 0; x < theight; x++) {
+            if (tetrimino[y][x] == 1){
+                position.push([x, y+1])
+            }
+        }
+    }
+    return position
+  } 
 
 
   function nextTetrimino(){
     miniContext.fillStyle = '#CCCCCC'; // グレー色
     miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
-    function miniGetxy(tetrimino){
-      const twidth = 4
-      const theight = 4
-      let position = []
-      for (let y = 0; y < twidth; y++) {
-          for (let x = 0; x < theight; x++) {
-              if (tetrimino[y][x] == 1){
-                  position.push([x, y+1])
-              }
-          }
-      }
-      return position
-    } 
 
+  
     // 次のテトリミノの呼び出し
     let nextRandomNumber = Math.floor(Math.random() * 5);
     let nextTetriminoPattern = tetrimino(nextRandomNumber);
     // テトリミノのminiCanvas内での位置を取得
     let nextPosition;
     nextPosition = miniGetxy(nextTetriminoPattern);
+     
     // miniCanvasに描画
     const cellSize = 20
     for (let i = 0; i < nextPosition.length; i++) {
       let x = nextPosition[i][0]
       let y = nextPosition[i][1]
-      miniContext.fillStyle = '#ff0000'
+      miniContext.fillStyle = color[nextRandomNumber]
       miniContext.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
     }
-    return nextTetriminoPattern
+    return [nextTetriminoPattern,nextRandomNumber]
   }
-  next = nextTetrimino()
+  nextlist = nextTetrimino()
+  next = nextlist[0]
+  nextRandomNumber = nextlist[1]
 
   function mainTetrimino(tetriminoPattern){
     // テトリミノの初期位置を取得
@@ -475,6 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loop = setTimeout(loopInterval, speed);
       } else {
         // 落下が止まった場合の処理
+        randomNumber = nextRandomNumber
         copyfielddrow(copyField);
         disapper(copyField, point);
         point = disapper(field, point);
@@ -488,7 +492,9 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         // 次のテトリミノをセットし、ループを再開
-        next = nextTetrimino();
+        nextlist = nextTetrimino();
+        next = nextlist[0]
+        nextRandomNumber = nextlist[1]
         loopInterval();
       }
     } else {
