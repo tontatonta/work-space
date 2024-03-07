@@ -25,13 +25,13 @@ body {
     margin: 0;
 }
 
-.grid{
+/* .grid{
     width: 200px;
     height: 400px;
     display: flex;
     flex-wrap: wrap;
     background-color: lightgrey;
-}
+} */
 .grid div{
     height: 20px;
     width: 20px;
@@ -45,7 +45,7 @@ body {
     height: 80px;
     display: flex;
     flex-wrap: wrap;
-    background-color: lightgray;
+    /* background-color: lightgray; */
 }
 
 .mini-grid div {
