@@ -452,46 +452,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const winningMessageTextElement = document.querySelector('[data-winning-message-text');
   const restartButton = document.getElementById('restartButton');
 
-  // function loopInterval() {
-  //     if (autodown() === true) {
-  //       loop = setTimeout(loopInterval, speed);
-  //     }else{
-  //       //着地後の処理
-  //       // console.log("着地");
-  //       //copyfileddrow(field)では落ちてきたテトリミノは消える
-  //       copyfielddrow(copyField);
-  //       disapper(copyField, point)
-  //       point = disapper(field, point)
-  //       if(mainTetrimino(next) == "gameover"){
-  //         console.log("12345678")
-  //         clearTimeout(loop);
+  const startButton = document.getElementById('start-button');
+  let isPaused = false;
+  let loop;
 
-  //         playerpoint = score(point -10)
-
-  //         winningMessageTextElement.innerText = `Score: ${playerpoint}`
-  //         winningMessageElement.classList.add('show');
-  //         restartButton.addEventListener('click', function(){location.reload()});
-  //         return
-  //       }
-  //       next = nextTetrimino();
-  //       loopInterval()
-  //     }
-  // }
-
-    const startButton = document.getElementById('start-button');
-    let isPaused = false;
-    let loop;
-
-    startButton.addEventListener('click', function() {
-      if (!isPaused) {
-        clearTimeout(loop);
-        startButton.innerText = 'Restart';
-      } else {
-        loopInterval();
-        startButton.innerText = 'Pause';
-      }
-      isPaused = !isPaused;
-    });
+  startButton.addEventListener('click', function() {
+    if (!isPaused) {
+      clearTimeout(loop);
+      startButton.innerText = 'Restart';
+    } else {
+      loopInterval();
+      startButton.innerText = 'Pause';
+    }
+    isPaused = !isPaused;
+  });
 
   // loopInterval 関数内の setTimeout を条件付きで呼び出す
   function loopInterval() {
