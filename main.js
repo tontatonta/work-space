@@ -1,5 +1,10 @@
+
 document.addEventListener('DOMContentLoaded', function() {
-  const speed = 250;
+  //HTMLのスコア表示のため↓
+  const scoreDisplay = document.querySelector('#score')
+
+  const speed = 500;
+  var point = 0;
   function tetrimino(num){
 
       const tetoriminos = [
@@ -34,6 +39,13 @@ document.addEventListener('DOMContentLoaded', function() {
       return tetoriminos[num]
 
   }
+  const red = '#ff0000'
+  const gray = '#CCCCCC' 
+  const green = '#008000'
+  const yellow = '#ffff00'
+  const purple = '#800080'
+  const blue = '#0000ff'
+  const color = [green, red, purple, blue, yellow, gray] 
 
 
 
@@ -49,21 +61,25 @@ document.addEventListener('DOMContentLoaded', function() {
           if (field[i].indexOf(0) == -1){
               field[i].fill(0)
               //scoreを保存する
-              //score(point)
+              point = score(point)
+              console.log(point)
               //消えた分下に下がる
               down(i, field)
+              // console.log(field)
+
           }
       }
+      return point
   }
 
   //上の段のものが一つ下に落ちる
   function down(i,field){
       for (var j = i; j > 0; j--){
           for (var k = 0; k < width; k++){
-              field[i][k] = field[i-1][k]
+              field[j][k] = field[j-1][k]
           }
       }
-      field[0].fill(0)
+      field[0].fill(0)  //0 or i
   }
 
   //指定された座標が1or0
@@ -116,9 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
       for(let i = 0; i < position.length; i++){
           //下にブロックがあったら
           if (underjudge(position[i][0],position[i][1],field)){
+            for (let i = 0; i < position.length; i++){
+              let x = position[i][0]
+              let y = position[i][1]
+              field[y][x] = 1
               return;// block(field, position)
           }
       }
+    }
       //position更新
       newPosition = []
       for (let j = 0; j < position.length; j++){
@@ -128,8 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   //右に移動
   function right(position){
-      console.log(field)
-      console.log(copyField)
+      // console.log(field)
+      // console.log(copyField)
       for (let i = 0; i < position.length; i++){
           let x = position[i][0]
           let y = position[i][1]
@@ -186,6 +207,73 @@ document.addEventListener('DOMContentLoaded', function() {
       return newPosition
   }
 
+  /* テトリミノのx, y座標のはみ出している部分を見つける(あるかどうかも含めて)。
+     もしあったら、はみ出ている部分を修正する　*/
+     function revisePositionIfOverflow(position) {
+      /* x座標のはみ出している部分を見つける(あるかどうかも含めて)。もしあったら、はみ出ている部分を修正する */
+       function revisePositionOfX(position) {
+        let maxOutX = -1 
+        let minOutX = 1
+        for (let i = 0; i < position.length; i++) {
+            // もし＋にはみ出ているx座標があったら、maxを計算
+            if (position[i][0] > 9) {
+              maxOutX = Math.max(maxOutX, position[i][0]);
+            }
+            // もし-にはみ出ているx座標があったら、minを計算
+            if (position[i][0] < 0) {
+              minOutX = Math.min(minOutX, position[i][0]);
+            }
+        }
+        // はみ出している部分があるかどうか確かめ、あれば修正(なければそのまま元のpositionを返す)
+        let newPosition = []
+        if (maxOutX != -1) {
+          for(let i = 0; i < position.length; i++) {
+            newPosition.push([position[i][0] - (maxOutX-9), position[i][1]]);
+          }
+        }
+        else if (minOutX != 1) {
+          for(let i = 0; i < position.length; i++) {
+            newPosition.push([position[i][0] - minOutX, position[i][1]]);
+          }
+        } else {
+          return position
+        }
+        return newPosition
+      }
+      /* y座標のはみ出している部分を見つける(あるかどうかも含めて)。もしあったら、はみ出ている部分を修正する*/ 
+      function revisePositionOfY(position) {
+        let maxOutY = -1
+        let minOutY = 1
+        for (let i = 0; i < position.length; i++) {
+            // もし＋にはみ出ているy座標があったら、maxを計算
+            if (position[i][1] > 19) {
+              maxOutY = Math.max(maxOutY, position[i][1]);
+            }
+            // もし-にはみ出ているy座標があったら、minを計算
+            if (position[i][1] < 0) {
+              minOutY = Math.min(minOutY, position[i][1]);
+            }
+        }
+        // はみ出している部分があるかどうか確かめ、あれば修正(なければそのまま元のpositionを返す)
+        let newPosition = []
+        if (maxOutY != -1) {
+          for(let i = 0; i < position.length; i++) {
+            newPosition.push([position[i][0], position[i][1] - (maxOutY-19)]);
+          }
+        }
+        else if (minOutY != 1) {
+          for(let i = 0; i < position.length; i++) {
+            newPosition.push([position[i][0], position[i][1] - minOutY]);
+          }
+        } else {
+          return position
+        }
+        return newPosition
+      }
+      let revesedPosition = revisePositionOfY(revisePositionOfX(position));
+      return revesedPosition
+    }
+
   /* 
   //全ての関数が描くのに関係している
 
@@ -211,6 +299,8 @@ document.addEventListener('DOMContentLoaded', function() {
   //最初の描く部分は考えていない
   function updateCopyField(copyField, newposition){
       //newpositionをcopyFieldに反映させる
+      // console.log(copyField)
+      // console.log(newposition)
       for (let i = 0; i < newposition.length; i++){
           let x = newposition[i][0]
           let y = newposition[i][1]
@@ -239,14 +329,14 @@ document.addEventListener('DOMContentLoaded', function() {
       //1のところは消す
       //固定のブロックは2にしておく
       //描くときについでに1は0にできるかも
-  function copyfielddrow(copyField){
+  function copyfielddrow(copyField, ramdomNumber){
       const red = '#ff0000'
       const grey = '#CCCCCC' 
 
       for (let y = 0; y < copyField.length; y++){
           for (let x = 0; x < copyField[0].length; x++){
               if (copyField[y][x] == 2){//2以上にするとテトリミノの種類に応じて色変更ができるかも．hashmapを用いれば
-                  draw(x, y, red)
+                  draw(x, y, color[randomNumber])
               }
               else if(copyField[y][x] <= 1){
                   copyField[y][x] = 0
@@ -264,18 +354,16 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 //描く関数をまとめてみる
-  function alldrow(copyField, position){
+  function alldrow(copyField, position,randomNumber){
       //console.log('beforposition: ', position)
       updateCopyField(copyField, position)
       //console.log('aftercopyfield: ', copyField)
-      copyfielddrow(copyField)
+      copyfielddrow(copyField, randomNumber)
       //block(field, copyfield, position)
 
   }
   //最初の地点
-// 使う色
-const red = '#ff0000'
-const gray = '#CCCCCC'
+
 // mainCanvasの呼び出し
 const mainCanvas = document.getElementById('tetrisCanvas');
 
@@ -365,15 +453,15 @@ next = nextTetrimino()
               copyField[y][x] = 1
           }
           position = hashmap[event.key]();
-          alldrow(copyField, position)
+          alldrow(copyField, position,randomNumber)
       }
       return position
   });
 
   //点数を保存
-  point = 0
   function score(point){
       point += 10
+      scoreDisplay.innerHTML = point
       return point
   }
 
@@ -393,7 +481,7 @@ next = nextTetrimino()
 
   //自動落下
   function autodown() {
-    alldrow(copyField, position)
+    alldrow(copyField, position,randomNumber)
     
     if (underjudge(field,position)){
         // 新しいテトリミノを生み出す
@@ -402,6 +490,7 @@ next = nextTetrimino()
         let y = position[i][1];
         field[y][x] = 1;
       }
+      
 
       return false;
     }
@@ -429,16 +518,23 @@ next = nextTetrimino()
         console.log("着地");
         //copyfileddrow(field)では落ちてきたテトリミノは消える
         copyfielddrow(copyField);
-        console.log(copyField);
-        console.log(field);
+        disapper(copyField, point)
+        point = disapper(field, point)
+        // console.log(copyField);
+        // console.log(field);
         if(mainTetrimino(next) == "gameover"){
           console.log("12345678")
           clearTimeout(loop);
-          winningMessageTextElement.innerText = `Score: ${score}`
+
+          playerpoint = score(point -10 )
+
+          winningMessageTextElement.innerText = `Score: ${playerpoint}`
           winningMessageElement.classList.add('show');
-          restartButton.addEventListener('click', function(){ location.reload()});
+          restartButton.addEventListener('click', function(){location.reload()});
           return
         }
+        // console.log("aaaaaaaaaaaaaaaaaa")
+        // console.log(field)
         next = nextTetrimino();
         loopInterval()
       }
