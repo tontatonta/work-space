@@ -41,28 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return tetriminos[num];
   }
 
-  let copyField = [
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0]
-  ]
+  let copyField = Array(20).fill().map(() => Array(10).fill(0));
   // 固定されたテトリミノの配置をfieldに記憶(10*20の2次元行列)
   let field = Array(20).fill().map(() => Array(10).fill(0));
 
@@ -108,16 +87,63 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // テトリミノを描画
-  function drawTetrimino(context, position, color) {
-    context.fillStyle = color; // テトリミノの色
-    const cellSize = 20; // テトリミノのセルのサイズ
+  // function drawTetrimino(context, position, color) {
+  //   context.fillStyle = color; // テトリミノの色
+  //   const cellSize = 20; // テトリミノのセルのサイズ
 
-    for (let i = 0; i < position.length; i++) {
-        let x = position[i][0]
-        let y = position[i][1]
-        context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+  //   for (let i = 0; i < position.length; i++) {
+  //       let x = position[i][0]
+  //       let y = position[i][1]
+  //       context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+  //   }
+  // }
+
+    //消して描いて消して描いてを考える
+    //最初の描く部分は考えていない
+  function updateCopyField(copyField, newposition){
+
+      console.log("drow:", copyField)
+      //newpositionをcopyFieldに反映させる
+      for (let i = 0; i < newposition.length; i++){
+          let x = newposition[i][0]
+          let y = newposition[i][1]
+          copyField[y][x] = 2
+      }
+  }
+
+  function copyfileddrow(copyField){
+    const red = '#ff0000'
+    const grey = '#CCCCCC' 
+    console.log('copyfileddrow: ',copyField)
+
+    for (let y = 0; y < copyField.length; y++){
+        for (let x = 0; x < copyField[0].length; x++){
+            if (copyField[y][x] == 2){
+                draw(x, y, red)
+            }
+            else if(copyField[y][x] <= 1){
+                copyField[y][x] = 0
+                draw(x, y, grey)
+            }
+        }
     }
   }
+
+    //分岐によって色指定をしたいがうまくいかないので描く部分だけ関数にする
+  function draw(x, y, color){
+      context.fillStyle = color
+      const cellSize = 20;
+      context.fillRect(x*cellSize, y*cellSize, cellSize, cellSize)
+  }
+
+  //描く関数をまとめてみる
+  function alldrow(copyField, position){
+    updateCopyField(copyField, position)
+    copyfileddrow(copyField)
+    //block(field, updatecopyfield, position)
+
+  }
+
 
   // 他ブロックとの衝突判定
   function judge(x, y, field) {
@@ -135,21 +161,15 @@ document.addEventListener('DOMContentLoaded', function() {
     return false
   }
 
-  // 下に落ちる
-  // function under(field, position){
-  //   for(let i = 0; i < position.length; i++){
-  //       //下にブロックがあったら
-  //       if (position[i][1] === 19 || judge(position[i][0], position[i][1]+1, field)){
-  //           return;// block(field, position)
-  //       }
-  //   }
-  //   //position更新
-  //   newPosition = []
-  //   for (let j = 0; j < position.length; j++){
-  //       newPosition.push([position[j][0],position[j][1]+1])
-  //   }
-  //   return newPosition
-  // }
+  // fieldに反映させる（固定）
+  function updateField(field, position){
+    for (let i = 0; i < position.length; i++){
+        let x = position[i][0]
+        let y = position[i][1]
+        field[y][x] = 1
+    }
+    return field
+  }
   
   // テトリミノを下に落とす
   function under(field, position){
@@ -300,16 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return revesedPosition
   }
 
-  // fieldに反映させる（固定）
-  function updateField(field, position){
-    for (let i = 0; i < position.length; i++){
-        let x = position[i][0]
-        let y = position[i][1]
-        field[y][x] = 1
-    }
-    return field
-  }
-
   // 点数を保存
   let point = 0
   function score(point){
@@ -360,51 +370,85 @@ document.addEventListener('DOMContentLoaded', function() {
     miniContext.fillStyle = '#CCCCCC'; // グレー色
     miniContext.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
     // miniCanvasに描画
-    drawTetrimino(miniContext, nextPosition, '#ff0000');
+    draw(miniContext, nextPosition, red);
   }
   nextTetrimino();
 
+  function mainTetrimino(tetriminoPattern){
+    // テトリミノの初期位置を取得
+    let position;
+    position = getxy(tetriminoPattern);
+    alldrow(copyField, position)
+    for (let i = 0; i < position.length; i++){
+        let x = position[i][0]
+        let y = position[i][1]
+        copyField[y][x] = 1
+    }  
+  }
+
   //自動落下
-  let hhh = true;
-  const intervalId = setInterval(() => {
+  function autodown() {
+    alldrow(copyField, position)
+    
     if (underjudge(field,position)){
-      clearInterval(intervalId);
-      return updateField(field,position)
+        // 新しいテトリミノを生み出す
+        return false;
     }
-      if (hhh) {
-          drawTetrimino(context, position, gray);
-      } else {
-          position = under(field,position);
-          drawTetrimino(context, position, red);
-      }
-      hhh = !hhh;
-  }, 250);
-
-  // キーイベントを各関数に割り当てる
-  function control (e) {
-
-    if(e.keyCode === 37) {
-      console.log(left(position))
-      left(position)
-    } else if (e.keyCode === 38) {
-      rotate(position)
-    } else if (e.keyCode === 39) {
-      right(position)
-    } else if (e.keyCode === 40) {
-      under(field, position)
+    else{
+        for (let i = 0; i < position.length; i++){
+            let x = position[i][0];
+            let y = position[i][1];
+            copyField[y][x] = 1;
+        } 
+        position = under(field, position);
+        return true;
     }
   }
-  document.addEventListener('keydown', control)
+
+  function loopInterval() {
+    if (autodown() === true) {
+        setTimeout(loopInterval, speed);
+    }else{
+      //着地後の処理
+      console.log("着地");
+      //copyfileddrow(field)では落ちてきたテトリミノは消える
+      copyfielddrow(copyField);
+      console.log(copyField);
+      mainTetrimino(next);
+      next = nextTetrimino();
+      loopInterval()
+    }
+  }
+        
+  const hashmap = {
+    ArrowRight: () => right(position),
+    ArrowLeft: () => left(position),
+    ArrowUp: () => rotate(position),
+    ArrowDown: () => under(field, position)
+  };
+  document.addEventListener("keydown", function (event) {
+      // key プロパティによってどのキーが押されたかを調べます。
+      // code プロパティを使うと大文字/小文字が区別されます。
+      // 何かキーボードの押して、コンソールに出力されているか確かめましょう。
+    if (hashmap[event.key]) {
+
+
+      for (let i = 0; i < position.length; i++){
+          let x = position[i][0]
+          let y = position[i][1]
+          copyField[y][x] = 1
+      }
+      position = hashmap[event.key]();
+      alldrow(copyField, position)
+    }
+    return position
+  });
 
   // mainCanvasの呼び出し
   const mainCanvas = document.getElementById('tetrisCanvas');
 
   // ↓canvasで2次元描画をするために必要らしい
   const context = mainCanvas.getContext('2d');
-
-  // 使う色
-  const red = '#ff0000'
-  const gray = '#CCCCCC'
 
   /* 0~4のランダムな整数を取得して、
      ランダムなテトリミノを１つ取得 */
@@ -416,20 +460,17 @@ document.addEventListener('DOMContentLoaded', function() {
   context.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
   // テトリミノの初期位置を取得
-  let position;
-  position = getxy(tetriminoPattern);
-  console.log(position);
-  drawTetrimino(context, position, red);
+  // let position;
+  // position = getxy(tetriminoPattern);
+  // console.log(position);
+  // drawTetrimino(context, position, red);
   // drawTetrimino(context, position, gray);
 
 
-  /* 3/6(水)は各々できる時間にできそうなことをやる
-     「（現状の）やることリスト
-      ・以下のdisappier、score、down関数を考える
-      ・fieldを描画する関数
-      ・スコア計算  etc.....
-      
-      3/7（木）は AM 10:00- から集まって作業
-  */
-
+  // //メイン関数
+  // function main() {
+  //   mainTetrimino(tetriminoPattern);
+  //   loopInterval();
+  // }
+  // main()
 });
