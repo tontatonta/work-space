@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       return newPosition
   }
+
   //右に移動
   function right(position){
       // console.log(field)
@@ -204,6 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
           let Y = Math.floor(y*Math.cos(Math.PI/2) + x*Math.sin(Math.PI/2) + (centery/4))
           newPosition.push([X,Y])
       }
+      newPosition = revisePositionIfOverflow(newPosition)
       return newPosition
   }
 
@@ -273,27 +275,6 @@ document.addEventListener('DOMContentLoaded', function() {
       let revesedPosition = revisePositionOfY(revisePositionOfX(position));
       return revesedPosition
     }
-
-  /* 
-  //全ての関数が描くのに関係している
-
-  //positionをcopyFieldに反映させる
-  //updatecopyfiledで代用できるかも
-  function startCopyField(copyField, position){
-      for (let i = 0; i < position.length(); i++){
-          let x = position[i][0]
-          let y = position[i][1]
-          copyField[y][x] = 1
-      }
-      return copyField
-  }
-  //startdopyfielddrow()
-  //最初のだけ描く
-  function startcopyfileddrow(copyField){
-
-  }
-
-  */
 
   //消して描いて消して描いてを考える
   //最初の描く部分は考えていない
@@ -416,8 +397,8 @@ function nextTetrimino(){
     miniContext.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
   }
   return nextTetriminoPattern
-}
-next = nextTetrimino()
+  }
+  next = nextTetrimino()
 
   function mainTetrimino(tetriminoPattern){
     // テトリミノの初期位置を取得
