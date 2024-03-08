@@ -51,17 +51,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //横一列揃ったら一列消える
   function disapper(field, point){
-      for (var i = 0; i < height; i++){
-          if (field[i].indexOf(0) == -1){
-              field[i].fill(0)
-              //scoreを保存する
-              point = score(point)
-              console.log(point)
-              //消えた分下に下がる
-              down(i, field)
+    for (var i = 0; i < height; i++){
+        if (field[i].indexOf(0) == -1){
+          if (isSoundOn == true) {
+            clearingALineSound.play();
           }
-      }
-      return point
+            field[i].fill(0)
+            //scoreを保存する
+            point = score(point)
+            console.log(point)
+            //消えた分下に下がる
+            down(i, field)
+        }
+    }
+    return point
   }
 
   //上の段のものが一つ下に落ちる
@@ -448,23 +451,53 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // ゲームオーバー時の画面に関する定数
   const winningMessageElement = document.getElementById('winningMessage');
   const winningMessageTextElement = document.querySelector('[data-winning-message-text');
   const restartButton = document.getElementById('restartButton');
 
+  // 一時停止・再開ボタンの制御
   const startButton = document.getElementById('start-button');
   let isPaused = false;
   let loop;
-
   startButton.addEventListener('click', function() {
     if (!isPaused) {
       clearTimeout(loop);
+      if (isSoundOn == true) {
+        gameSound.pause();
+      }
       startButton.innerText = 'Restart';
     } else {
       loopInterval();
       startButton.innerText = 'Pause';
+      if (isSoundOn == true) {
+        gameSound.play();
+      }
     }
     isPaused = !isPaused;
+  });
+
+  // ゲーム中の音楽 ↓ // 
+  /* ブラウザ側の設定で、HTMLがrenderされた時点で音楽を流す設定にしてしまうと良くないので、
+  　　ユーザーがゲーム音をonにした時のみ音楽がながれるようにする */
+
+  // プレイ中のデフォルト音楽
+  const gameSound = document.getElementById("gameSound");
+  // ゲームオーバー時の効果音
+  const gameOverSound = document.getElementById("gameOver");
+  // 横一列揃った時の効果音
+  const clearingALineSound = document.getElementById("clearingALine");
+  let isSoundOn = false;
+  const soundBottun = document.getElementById("isGameSoundOn");
+  soundBottun.addEventListener('click', function() {
+    isSoundOn = !isSoundOn;
+    // gameSound.loop = true;
+    gameSound.volume = 0.3;
+    if (isSoundOn == true) {
+      gameSound.play();
+    } else {
+      gameSound.pause();
+    }
   });
 
   // loopInterval 関数内の setTimeout を条件付きで呼び出す
@@ -481,6 +514,10 @@ document.addEventListener('DOMContentLoaded', function() {
         point = disapper(field, point);
         if (mainTetrimino(next) == "gameover") {
           // ゲームオーバーの処理
+          if (isSoundOn == true) {
+              gameSound.pause();
+              gameOverSound.play();
+          }
           clearTimeout(loop);
           playerpoint = score(point - 10);
           winningMessageTextElement.innerText = `Score: ${playerpoint}`;

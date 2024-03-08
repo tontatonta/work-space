@@ -25,6 +25,17 @@ body {
     margin: 0;
 }
 
+/* .isGameSoundOn {
+    margin-top: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 30vh;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+} */
+
 /* .grid{
     width: 200px;
     height: 400px;
