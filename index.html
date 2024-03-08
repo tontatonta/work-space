@@ -13,6 +13,7 @@
             <h1>Tetris</h1>
             <h3>Score:<span id="score">0</span></h3>
             <botton id="start-button">Start/Pause</botton>
+            <button id="isGameSoundOn">ゲーム音 on/off</button>
         </div>
         <div class="container">
             <div class="grid">
@@ -27,5 +28,9 @@
             <div data-winning-message-text></div>
             <button id = "restartButton">Restart</button>
         </div>
+        <!-- ゲーム音楽 -->
+        <audio src="sound/retrogamecenter3.mp3" id="gameSound"></audio>
+        <audio src="sound/gameover2_8bit.mp3" id="gameOver"></audio>
+        <audio src="sound/maou_se_system49.mp3" id="clearingALine"></audio>
     </body>
 </html>
