@@ -326,6 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   }
 
+  // 落下位置の予測
   function expectation(field, position){
     let i = 0
     while (true){
