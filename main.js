@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const yellow = '#ffff00'
   const purple = '#800080'
   const blue = '#0000ff'
-  const color = [green, red, purple, blue, yellow, gray]
+  const black = '#000000'
+  const color = [green, red, purple, blue, yellow, black] 
 
   let copyField = Array(20).fill().map(() => Array(10).fill(0));
   
@@ -59,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
             field[i].fill(0)
             //scoreを保存する
             point = score(point)
-            console.log(point)
             //消えた分下に下がる
             down(i, field)
         }
@@ -130,10 +130,10 @@ document.addEventListener('DOMContentLoaded', function() {
               let x = position[i][0]
               let y = position[i][1]
               field[y][x] = 1
-              return;// block(field, position)
+            }
+            return;
           }
       }
-    }
       //position更新
       newPosition = []
       for (let j = 0; j < position.length; j++){
@@ -144,8 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //右に移動
   function right(position){
-      // console.log(field)
-      // console.log(copyField)
       for (let i = 0; i < position.length; i++){
           let x = position[i][0]
           let y = position[i][1]
@@ -280,36 +278,82 @@ document.addEventListener('DOMContentLoaded', function() {
         copyField[y][x] = 2 + randomNumber//テトリミノの種類によって数字を変えれば色も変えれるかも
     }
   }
-  function copyfielddrow(copyField, ramdomNumber){
-      const red = '#ff0000'
-      const grey = '#CCCCCC'
 
-      for (let y = 0; y < copyField.length; y++){
-          for (let x = 0; x < copyField[0].length; x++){
-              if (copyField[y][x] >= 2){//2以上にするとテトリミノの種類に応じて色変更ができるかも．hashmapを用いれば
+  function copyfielddrow(copyField, ramdomNumber){
+    const red = '#ff0000'
+    const grey = '#CCCCCC'
+    const cellSize = 20;
+
+    for (let y = 0; y < copyField.length; y++){
+        for (let x = 0; x < copyField[0].length; x++){
+            if (copyField[y][x] >= 2){//2以上にするとテトリミノの種類に応じて色変更ができるかも．hashmapを用いれば
+                if (copyField[y][x] == 7){
+                  draw(x, y, '#999999')
+                }else{
                   draw(x, y, color[copyField[y][x]-2])
-              }
-              else if(copyField[y][x] <= 1){
+                }
+                //テトリミノのマス目の枠線をつける部分
+                context.strokeStyle = 'black'; // 枠線の色
+                context.lineWidth = 0.2; // 枠線の太さ
+                context.strokeRect(x*cellSize, y*cellSize, cellSize, cellSize);
+                if (copyField[y][x] == 7){
                   copyField[y][x] = 0
-                  draw(x, y, grey)
               }
-          }
-      }
+            }
+            else if(copyField[y][x] <= 1){
+                copyField[y][x] = 0
+                draw(x, y, grey)
+            }
+        }
+    }
   }
 
   //分岐によって色指定をしたいがうまくいかないので描く部分だけ関数にする
   function draw(x, y, color){
-      context.fillStyle = color
-      const cellSize = 20;
-      context.fillRect(x*cellSize, y*cellSize, cellSize, cellSize)
+    context.fillStyle = color
+    const cellSize = 20;
+    context.fillRect(x*cellSize, y*cellSize, cellSize, cellSize)
+    context.strokeStyle = 'black'; // 枠線の色
+    context.lineWidth = 2.5; // 枠線の太さ
+    context.strokeRect(0, 0, mainCanvas.width, mainCanvas.height);
   }
 
   //描く関数をまとめてみる
-  function alldrow(copyField, position,randomNumber){
+  function alldrow(copyField, position,randomNumber, field){
+    expectcopyfield(field, position, copyField)
     updateCopyField(copyField, position, randomNumber)
     copyfielddrow(copyField, randomNumber)
 
-}
+  }
+
+  function expectation(field, position){
+    let i = 0
+    while (true){
+  
+        let expectposition = []
+        for (let j = 0; j < position.length;j++){
+            let x = position[j][0] 
+            let y = position[j][1] + i
+            expectposition.push([x, y])
+        }
+        if (underjudge(field, expectposition)){
+            
+            return expectposition
+        }
+        i++
+    }
+  }
+  
+  //着地地点を描く関数引数今のposition, field
+  function expectcopyfield(field, position, copyField){
+    let exposition = expectation(field, position)
+    for (let i = 0; i < exposition.length; i++){
+        let x = exposition[i][0]
+        let y = exposition[i][1]
+        copyField[y][x] = 7
+    }
+  } 
+
   //最初の地点
 
   // mainCanvasの呼び出し
@@ -366,6 +410,12 @@ document.addEventListener('DOMContentLoaded', function() {
       let y = nextPosition[i][1]
       miniContext.fillStyle = color[nextRandomNumber]
       miniContext.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+      //枠線の追加部分
+      miniContext.strokeStyle = 'black'; // 枠線の色
+      miniContext.lineWidth = 0.5; // 枠線の太さ
+      miniContext.strokeRect(0, 0, miniCanvas.width, miniCanvas.height); //minicanvas全体
+      miniContext.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);//minicanvas内のテトリミノ
     }
     return [nextTetriminoPattern,nextRandomNumber]
   }
@@ -402,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 copyField[y][x] = 1
             }
             position = hashmap[event.key]();
-            alldrow(copyField, position,randomNumber)
+            alldrow(copyField, position,randomNumber, field)
         }
         return position
     });
@@ -429,10 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //自動落下
   function autodown() {
-    alldrow(copyField, position,randomNumber)
+    alldrow(copyField, position,randomNumber, field)
     
     if (underjudge(field,position)){
-        // 新しいテトリミノを生み出す
+      // 新しいテトリミノを生み出す
       for (let i = 0; i < position.length; i++){
         let x = position[i][0];
         let y = position[i][1];
@@ -509,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         // 落下が止まった場合の処理
         randomNumber = nextRandomNumber
-        copyfielddrow(copyField);
+        // copyfielddrow(copyField);
         disapper(copyField, point);
         point = disapper(field, point);
         if (mainTetrimino(next) == "gameover") {
