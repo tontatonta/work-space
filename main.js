@@ -2,6 +2,13 @@ document.addEventListener('DOMContentLoaded', function() {
   //HTMLのスコア表示のため↓
   const scoreDisplay = document.querySelector('#score')
 
+  const highscoreDisplay = document.querySelector('#highscore')
+  if (localStorage){
+    highscoreDisplay.innerHTML = localStorage.getItem('highscore')
+  }else{
+    localStorage.setItem('highscore', 0);
+  }
+
   const speed = 500;
   var point = 0;
   function tetrimino(num){
@@ -416,7 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // テトリミノのminiCanvas内での位置を取得
     let nextPosition;
     nextPosition = miniGetxy(nextTetriminoPattern);
-     
+    
     // miniCanvasに描画
     const cellSize = 20
     for (let i = 0; i < nextPosition.length; i++) {
@@ -454,29 +461,34 @@ document.addEventListener('DOMContentLoaded', function() {
       ArrowDown: () => under(field, position)
   };
   document.addEventListener("keydown", function (event) {
-        if (hashmap[event.key]) {
-          // 下に移動する前に衝突判定を行う
-          if (underjudge(field, position)) {
-            // 下にブロックがある場合、無効化して処理を終了する
-            return;
-          }
-            for (let i = 0; i < position.length; i++){
-                let x = position[i][0]
-                let y = position[i][1]
-                copyField[y][x] = 1
-            }
-            position = hashmap[event.key]();
-            alldrow(copyField, position,randomNumber, field)
+    if (hashmap[event.key]) {
+      // 下に移動する前に衝突判定を行う
+      if (underjudge(field, position)) {
+        // 下にブロックがある場合、無効化して処理を終了する
+        return;
+      }
+        for (let i = 0; i < position.length; i++){
+            let x = position[i][0]
+            let y = position[i][1]
+            copyField[y][x] = 1
         }
-        return position
-    });
+        position = hashmap[event.key]();
+        alldrow(copyField, position,randomNumber, field)
+    }
+    return position
+  });
 
 
   //点数を保存
   function score(point){
-      point += 10
-      scoreDisplay.innerHTML = point
-      return point
+    point += 10
+    scoreDisplay.innerHTML = point
+    if (point > localStorage.getItem('highscore')){
+      console.log("入れ替え")
+      highscoreDisplay.innerHTML = point
+
+    }
+    return point
   }
 
   //ゲームオーバー判定
@@ -584,6 +596,19 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           clearTimeout(loop);
           playerpoint = score(point - 10);
+
+          //highscoreの呼び出し
+          if (localStorage) {
+            highscore = localStorage.getItem('highscore');
+          }else{
+            highscore = 0;
+          }
+          highscore = parseInt(highscore)
+          if (highscore < playerpoint){
+            highscoreDisplay.innerHTML = playerpoint;
+            localStorage.setItem('highscore', playerpoint);
+          }
+
           winningMessageTextElement.innerText = `Score: ${playerpoint}`;
           winningMessageElement.classList.add('show');
           restartButton.addEventListener('click', function(){location.reload()});
@@ -600,7 +625,6 @@ document.addEventListener('DOMContentLoaded', function() {
       loop = setTimeout(loopInterval, speed);
     }
   }
-
 
   //メイン関数
   function main() {
