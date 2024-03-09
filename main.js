@@ -30,7 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
           [[0,1,1,0],
           [0,1,0,0],
           [0,1,0,0],
-          [0,0,0,0]]]
+          [0,0,0,0]],
+
+          [[0,1,1,0],
+          [0,0,1,0],
+          [0,0,1,0],
+          [0,0,0,0]],
+
+          [[0,0,1,0],
+          [0,1,1,0],
+          [0,1,0,0],
+          [0,0,0,0]]
+        ]
 
       return tetoriminos[num]
   }
@@ -42,7 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const purple = '#800080'
   const blue = '#0000ff'
   const black = '#000000'
-  const color = [green, red, purple, blue, yellow, black] 
+  const orange = '#FFA500'
+  const lightBlue = '#ADD8E6'
+  const color = [green, red, purple, blue, yellow, orange, lightBlue]
 
   let copyField = Array(20).fill().map(() => Array(10).fill(0));
   
@@ -287,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for (let y = 0; y < copyField.length; y++){
         for (let x = 0; x < copyField[0].length; x++){
             if (copyField[y][x] >= 2){//2以上にするとテトリミノの種類に応じて色変更ができるかも．hashmapを用いれば
-                if (copyField[y][x] == 7){
+                if (copyField[y][x] == 9){
                   draw(x, y, '#999999')
                 }else{
                   draw(x, y, color[copyField[y][x]-2])
@@ -296,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 context.strokeStyle = 'black'; // 枠線の色
                 context.lineWidth = 0.2; // 枠線の太さ
                 context.strokeRect(x*cellSize, y*cellSize, cellSize, cellSize);
-                if (copyField[y][x] == 7){
+                if (copyField[y][x] == 9){
                   copyField[y][x] = 0
               }
             }
@@ -314,8 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const cellSize = 20;
     context.fillRect(x*cellSize, y*cellSize, cellSize, cellSize)
     context.strokeStyle = 'black'; // 枠線の色
-    context.lineWidth = 2.5; // 枠線の太さ
-    context.strokeRect(0, 0, mainCanvas.width, mainCanvas.height);
+    context.lineWidth = 0.2; // 枠線の太さ
+    context.strokeRect(x*cellSize, y*cellSize, cellSize, cellSize);
   }
 
   //描く関数をまとめてみる
@@ -351,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for (let i = 0; i < exposition.length; i++){
         let x = exposition[i][0]
         let y = exposition[i][1]
-        copyField[y][x] = 7
+        copyField[y][x] = 9
     }
   } 
 
@@ -374,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   /* 0~4のランダムな整数を取得して、
       ランダムなテトリミノを１つ取得 */
-  let randomNumber = Math.floor(Math.random() * 5);
+  let randomNumber = Math.floor(Math.random() * 7);
   let tetriminoPattern = tetrimino(randomNumber);
   //  console.log('randomtetorimino', randomNumber)
   function miniGetxy(tetrimino){
@@ -398,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   
     // 次のテトリミノの呼び出し
-    let nextRandomNumber = Math.floor(Math.random() * 5);
+    let nextRandomNumber = Math.floor(Math.random() * 7);
     let nextTetriminoPattern = tetrimino(nextRandomNumber);
     // テトリミノのminiCanvas内での位置を取得
     let nextPosition;
